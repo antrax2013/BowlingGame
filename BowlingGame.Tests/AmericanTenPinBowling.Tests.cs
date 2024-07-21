@@ -24,19 +24,23 @@ internal class AmericanTenPinBowlingTests
     }
 
     [Test]
-    public void When_The_Game_Is_Completed_After_12_Strikes_The_Score_Should_Be_300() {
+    public void When_The_Game_Is_Completed_After_12_Strikes_The_Score_Should_Be_300_And_Display_Is_The_Expected_Display()
+    {
         var expectedResult = 300;
+        var expectedDisplay = "X X X X X X X X X X X X";
         rollResult.GenerateResult().Returns(10);
 
         game.Play();
 
         Check.That(game.Score).IsEqualTo(expectedResult);
+        Check.That(game.ToString()).IsEqualTo(expectedDisplay);
     }
 
     [Test]
-    public void When_The_Game_Is_Completed_With_9_points_rolls_and_9_failed_The_Score_Should_Be_90()
+    public void When_The_Game_Is_Completed_With_9_points_rolls_and_9_failed_The_Score_Should_Be_90_And_Display_Is_The_Expected_Display()
     {
         var expectedResult = 90;
+        var expectedDisplay = "9- 9- 9- 9- 9- 9- 9- 9- 9- 9-";
         var i = 0;
         rollResult.GenerateResult().Returns(x =>
                 {
@@ -48,16 +52,19 @@ internal class AmericanTenPinBowlingTests
         game.Play();
 
         Check.That(game.Score).IsEqualTo(expectedResult);
+        Check.That(game.ToString()).IsEqualTo(expectedDisplay);
     }
 
     [Test]
-    public void When_The_Game_Is_Completed_By_10_Spares_and_5_points_spare_reroll_The_Score_Should_Be_150()
+    public void When_The_Game_Is_Completed_By_10_Spares_and_5_points_spare_reroll_The_Score_Should_Be_150_And_Display_Is_The_Expected_Display()
     {
         var expectedResult = 150;
         rollResult.GenerateResult().Returns(5);
+        var expectedDisplay = "5/ 5/ 5/ 5/ 5/ 5/ 5/ 5/ 5/ 5/5";
 
         game.Play();
 
         Check.That(game.Score).IsEqualTo(expectedResult);
+        Check.That(game.ToString()).IsEqualTo(expectedDisplay);
     }
 }

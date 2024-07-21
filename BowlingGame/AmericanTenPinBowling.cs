@@ -1,4 +1,6 @@
-﻿namespace BowlingGame;
+﻿using System.Text;
+
+namespace BowlingGame;
 
 public sealed class AmericanTenPinBowling(IRollResult rollResult, List<Frame> frames) : IBowling
 {
@@ -68,5 +70,19 @@ public sealed class AmericanTenPinBowling(IRollResult rollResult, List<Frame> fr
         }
 
         return uncompletedFrame;
+    }
+
+    public override string ToString() {
+        var famresWithoutLastFrame = _frames.SkipLast(1);
+        var startOfDisplay = string.Join(" ", famresWithoutLastFrame.Select(f => f.ToString()).ToList());
+        
+        var lastFrame = _frames.Last();
+        var lastRollResult = lastFrame.Score switch {
+            30 => "X X X",
+            > 10 => lastFrame.ToString()+(lastFrame.Score-10).ToString(),
+            _ =>  lastFrame.ToString()
+        };
+
+        return startOfDisplay +" "+ lastRollResult;
     }
 }
