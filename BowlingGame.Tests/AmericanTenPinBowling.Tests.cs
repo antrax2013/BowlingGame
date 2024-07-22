@@ -19,8 +19,9 @@ internal class AmericanTenPinBowlingTests
     }
 
     [Test]
-    public void When_A_New_Games_Is_Set_Then_The_Number_Of_Pins_Is_Ten_And_The_Score_Is_Null() {
+    public void When_A_New_Games_Starts_Then_The_Score_Is_Null() {
         Check.That(game.Score).IsNull();
+        Check.That(game.DisplayScore()).IsEqualTo(string.Empty);
     }
 
     [Test]
@@ -33,7 +34,7 @@ internal class AmericanTenPinBowlingTests
         game.Play();
 
         Check.That(game.Score).IsEqualTo(expectedResult);
-        Check.That(game.ToString()).IsEqualTo(expectedDisplay);
+        Check.That(game.DisplayScore()).IsEqualTo(expectedDisplay);
     }
 
     [Test]
@@ -52,7 +53,7 @@ internal class AmericanTenPinBowlingTests
         game.Play();
 
         Check.That(game.Score).IsEqualTo(expectedResult);
-        Check.That(game.ToString()).IsEqualTo(expectedDisplay);
+        Check.That(game.DisplayScore()).IsEqualTo(expectedDisplay);
     }
 
     [Test]
@@ -65,6 +66,6 @@ internal class AmericanTenPinBowlingTests
         game.Play();
 
         Check.That(game.Score).IsEqualTo(expectedResult);
-        Check.That(game.ToString()).IsEqualTo(expectedDisplay);
+        Check.That(game.DisplayScore()).IsEqualTo(expectedDisplay);
     }
 }

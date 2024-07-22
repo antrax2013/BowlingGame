@@ -1,9 +1,9 @@
-﻿namespace BowlingGame
+﻿namespace BowlingGame;
+public interface IBowling
 {
-    public interface IBowling
-    {
-        void Play();
+    void Play();
 
-        int? Score { get; }
-    }
+    int? Score { get; }
+
+    string DisplayScore();
 }

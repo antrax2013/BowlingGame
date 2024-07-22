@@ -1,17 +1,18 @@
-﻿using NSubstitute;
-using NFluent;
+﻿using NFluent;
 
 namespace BowlingGame.Tests;
 
 internal class FrameTests
 {
     [Test]
-    public void When_2_Rolls_Frame_Is_Initialized_Then_The_Frame_Score_Should_Be_Null_And_State_Frame_Is_Running()
+    public void When_2_Rolls_Frame_Is_Initialized_Then_The_Frame_Score_Should_Be_Null_And_States_Are_Null()
     {
         var frame = new Frame();
 
         Check.That(frame.Score.HasValue).IsFalse();
-        Check.That(frame.State).IsEqualTo(FrameState.Running);
+        Check.That(frame.IsCompleted).IsFalse();
+        Check.That(frame.IsStrike).IsFalse();
+        Check.That(frame.IsSpare).IsFalse();
     }
 
     [Test]
@@ -22,7 +23,9 @@ internal class FrameTests
 
         frame.SaveRollResult(aValue);
 
-        Check.That(frame.State).IsEqualTo(FrameState.Completed);
+        Check.That(frame.IsCompleted).IsTrue();
+        Check.That(frame.IsStrike).IsFalse();
+        Check.That(frame.IsSpare).IsFalse();
     }
 
     [Test]
@@ -57,13 +60,14 @@ internal class FrameTests
         var frame = new Frame();
         var score1 = 5;
         var score2 = 5;
-        var expectedState = FrameState.Spare;
 
         frame.SaveRollResult(score1);
         frame.SaveRollResult(score2);
 
         Check.That(frame.Score.HasValue).IsFalse();
-        Check.That(frame.State).IsEqualTo(expectedState);
+        Check.That(frame.IsCompleted).IsFalse();
+        Check.That(frame.IsStrike).IsFalse();
+        Check.That(frame.IsSpare).IsTrue();
     }
 
     [Test]
@@ -71,12 +75,13 @@ internal class FrameTests
     {
         var frame = new Frame();
         var score1 = 10;
-        var expectedState = FrameState.Strike;
 
         frame.SaveRollResult(score1);
 
         Check.That(frame.Score.HasValue).IsFalse();
-        Check.That(frame.State).IsEqualTo(expectedState);
+        Check.That(frame.IsCompleted).IsFalse();
+        Check.That(frame.IsStrike).IsTrue();
+        Check.That(frame.IsSpare).IsFalse();
     }
 
 }

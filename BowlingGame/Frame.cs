@@ -1,16 +1,4 @@
-﻿
-using System;
-
-namespace BowlingGame;
-
-
-public enum FrameState {
-    Running,
-    Strike,
-    Spare,
-    Completed,
-}
-
+﻿namespace BowlingGame;
 
 public sealed class Frame(int numberOfRollsToCompleted = 2, int maxRollResult=10)
 {
@@ -21,16 +9,15 @@ public sealed class Frame(int numberOfRollsToCompleted = 2, int maxRollResult=10
     private int nbRolls = 0;
     private readonly List<int> values = [];
 
-    public FrameState State { get; private set; } = FrameState.Running;
+    public Boolean IsStrike { get; private set; } = false;
+    public Boolean IsSpare { get; private set; } = false;
+    public Boolean IsCompleted { get; private set; } = false;
 
-    private Boolean IsStrike { get; set; } = false;
-    private Boolean IsSpare { get; set; } = false;
-
-    public int? Score { get => State==FrameState.Completed? CurrentScore : null; }
+    public int? Score { get => IsCompleted ? CurrentScore : null; }
 
     public void SaveRollResult(int result)
     {
-        if (State == FrameState.Completed)
+        if (IsCompleted)
             throw new InvalidOperationException("Frame is full.");
 
         values.Add(result);
@@ -39,33 +26,27 @@ public sealed class Frame(int numberOfRollsToCompleted = 2, int maxRollResult=10
         if (CurrentScore == maxRollResult) {
 
             numberOfRollsToCompleted++;
-            if (nbRolls == 1) {
-                State = FrameState.Strike;
+            if (nbRolls == 1)
                 IsStrike = true;
-            }
-            else {
-                State = FrameState.Spare;
+            else
                 IsSpare = true;
-            }
             return;
         }
-
       
-        if (nbRolls == numberOfRollsToCompleted) {
-            State = FrameState.Completed;
-        }
+        if (nbRolls == numberOfRollsToCompleted)
+            IsCompleted = true;
     }
 
-    public override string ToString()
+    public string DisplayScore()
     {
-        if (IsStrike) {
+        if (!IsCompleted)
+            return string.Empty;
+
+        if (IsStrike)
             return "X";
-        }
 
         if (IsSpare)
-        {
             return values[0]+"/";
-        }
 
         return (values[0].ToString()+values[1].ToString()).Replace("0","-");
     }

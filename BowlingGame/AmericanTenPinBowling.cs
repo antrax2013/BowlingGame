@@ -1,19 +1,13 @@
-﻿using System.Text;
-
-namespace BowlingGame;
+﻿namespace BowlingGame;
 
 public sealed class AmericanTenPinBowling(IRollResult rollResult, List<Frame> frames) : IBowling
 {
-#pragma warning disable CS9124 // Le paramètre est capturé dans l'état du type englobant et sa valeur est également utilisée pour initialiser un champ, une propriété ou un événement.
-#pragma warning disable IDE0052 // Supprimer les membres privés non lus
-    private readonly IRollResult _rollResult = rollResult;
-#pragma warning restore IDE0052 // Supprimer les membres privés non lus
-#pragma warning restore CS9124 // Le paramètre est capturé dans l'état du type englobant et sa valeur est également utilisée pour initialiser un champ, une propriété ou un événement.
-    private readonly List<Frame> _frames = frames;
+    private readonly IRollResult rollResult = rollResult;
+    private readonly List<Frame> frames = frames;
 
     public int? Score {
         get {
-            var completedFrame = _frames.Where(f => f.State == FrameState.Completed).ToList();
+            var completedFrame = frames.Where(f => f.IsCompleted).ToList();
 
             return completedFrame.Count > 0 ? completedFrame.Select(f => f.Score).Sum() : null;
         }
@@ -21,18 +15,17 @@ public sealed class AmericanTenPinBowling(IRollResult rollResult, List<Frame> fr
 
     public void Play()
     {
-        var endOfGame = false;
         List<Frame> unresolvedFrames = [];
-        for (int i = 0; i < _frames.Count; i++)
+        for (int i = 0; i < frames.Count; i++)
         {
-            var frame = _frames[i];
+            var frame = frames[i];
 
             var result = rollResult.GenerateResult();
             frame.SaveRollResult(result);
 
-            unresolvedFrames = ManageNotSolvedFrames(unresolvedFrames, result, endOfGame);
+            unresolvedFrames = ManageNotSolvedFrames(unresolvedFrames, result);
 
-            if (frame.State == FrameState.Strike)
+            if (frame.IsStrike)
             {
                 unresolvedFrames.Add(frame);
                 continue;
@@ -41,46 +34,41 @@ public sealed class AmericanTenPinBowling(IRollResult rollResult, List<Frame> fr
             result = rollResult.GenerateResult();
             frame.SaveRollResult(result);
 
-            if (frame.State == FrameState.Spare)
+            if (frame.IsSpare)
                 unresolvedFrames.Add(frame);
         }
 
-        endOfGame = true;
         while (unresolvedFrames.Count > 0)
-            unresolvedFrames = ManageNotSolvedFrames(unresolvedFrames, rollResult.GenerateResult(), endOfGame);
+            unresolvedFrames = ManageNotSolvedFrames(unresolvedFrames, rollResult.GenerateResult());
     }
 
-    private static List<Frame> ManageNotSolvedFrames(List<Frame> unresolvedFrames, int result, bool endOfGame) {
+    private static List<Frame> ManageNotSolvedFrames(List<Frame> unresolvedFrames, int result) {
         List<Frame> uncompletedFrame = [];
-        var isLastRoll = endOfGame && unresolvedFrames.Count == 1;
 
         foreach (var unresolved in unresolvedFrames)
         {
             unresolved.SaveRollResult(result);
 
-            if (unresolved.State != FrameState.Completed)
-            {
-                if (isLastRoll)
-                    while(unresolved.State != FrameState.Completed)
-                        unresolved.SaveRollResult(0);
-                else
+            if (!unresolved.IsCompleted)
                     uncompletedFrame.Add(unresolved);
-            }
                 
         }
 
         return uncompletedFrame;
     }
 
-    public override string ToString() {
-        var famresWithoutLastFrame = _frames.SkipLast(1);
-        var startOfDisplay = string.Join(" ", famresWithoutLastFrame.Select(f => f.ToString()).ToList());
+    public string DisplayScore() {
+        if(frames.Exists(f => !f.IsCompleted))
+            return string.Empty;
+
+        var famresWithoutLastFrame = frames.SkipLast(1);
+        var startOfDisplay = string.Join(" ", famresWithoutLastFrame.Select(f => f.DisplayScore()).ToList());
         
-        var lastFrame = _frames.Last();
+        var lastFrame = frames.Last();
         var lastRollResult = lastFrame.Score switch {
             30 => "X X X",
-            > 10 => lastFrame.ToString()+(lastFrame.Score-10).ToString(),
-            _ =>  lastFrame.ToString()
+            > 10 => lastFrame.DisplayScore()+(lastFrame.Score-10).ToString(),
+            _ =>  lastFrame.DisplayScore()
         };
 
         return startOfDisplay +" "+ lastRollResult;
